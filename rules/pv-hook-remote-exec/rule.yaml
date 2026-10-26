@@ -1,0 +1,23 @@
+id: pv-hook-remote-exec
+title: Downloads code and runs it straight away
+severity: critical
+kind: pattern
+targets: [hook-command, monitor-command, server-command, run-script, script]
+match:
+  any:
+    # curl/wget piped into a shell or an interpreter
+    - '\b(curl|wget)\b[^\n|;&]*\|\s*(sudo\s+)?(ba|z|da|k)?sh\b'
+    - '\b(curl|wget)\b[^\n|;&]*\|\s*(sudo\s+)?(python3?|node|perl|ruby|php)\b'
+    # sh -c "$(curl …)" and sh <(curl …)
+    - '\b(ba|z)?sh\s+(-c\s+)?["'']?\$\(\s*(curl|wget)\b'
+    - '\b(ba|z)?sh\s+<\(\s*(curl|wget)\b'
+    # PowerShell: download | iex, and iex (download)
+    - '\b(iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b[^\n|]*\|\s*(iex|Invoke-Expression)\b'
+    - '\b(iex|Invoke-Expression)\s*\(?\s*(\(\s*)?(New-Object\s+(System\.)?Net\.WebClient|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b'
+why: >
+  Whatever the server sends at that moment runs on your machine with your permissions. The plugin
+  you reviewed is not the code that runs: the server can change it at any time, or send something
+  different to you than to the reviewer.
+fix: Ship the script inside the plugin, so what runs is what was reviewed. If it must download
+  something, pin it and check its checksum before running it.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

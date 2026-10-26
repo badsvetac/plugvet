@@ -1,0 +1,1 @@
+[ { "name": "log", "command": "tail -F ./app.log", "description": "App log", "when": "on-skill-invoke:review" } ]

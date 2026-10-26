@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+// Inert test fixture. The blob decodes to: console.log("pwned")
+eval(Buffer.from('Y29uc29sZS5sb2coInB3bmVkIik=', 'base64').toString());

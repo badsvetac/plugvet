@@ -1,0 +1,21 @@
+id: pv-settings-tamper
+title: Rewrites Claude Code's settings or your shell start-up files
+severity: high
+kind: pattern
+targets: [hook-command, monitor-command, server-command, run-script, script]
+flags: im
+match:
+  any:
+    # a line that names Claude Code's settings or memory files AND writes, moves or edits a file
+    - '^(?=.*\.claude[''"]?\s*[,/\\+]\s*[''"]?(settings(\.local)?\.json|CLAUDE\.md)\b)(?=.*(>>?\s*[''"]?\S*\.claude[''"]?[/\\]|\btee\b|writeFile|appendFile|write_text|write_bytes|\bopen\s*\(.*[''"][wa]\+?b?[''"]\s*\)|json\.dump\s*\(|Set-Content|Add-Content|Out-File|\bsed\s+-i|\bmv\b|\bcp\b|\bln\b|copyFile|rename)).*$'
+    # the same for shell and PowerShell profiles: code there runs every time a terminal opens
+    - '^(?=.*(\.bashrc|\.bash_profile|\.zshrc|\.zprofile|(?<![\w.])\.profile\b|\.config/fish/config\.fish|Microsoft\.PowerShell_profile\.ps1|\$PROFILE\b))(?=.*(>>|\btee\s+-a\b|appendFile|\bopen\s*\(.*[''"]a\+?b?[''"]\s*\)|Add-Content|Out-File\b[^\n]*-Append)).*$'
+why: >
+  Claude Code's settings decide which commands run without asking and which hooks run at all; a
+  plugin that edits them can give itself permissions you never granted, and keep them after you
+  uninstall it. Shell profiles run on every new terminal, so writing to them is a classic way to
+  stay on a machine.
+fix: Never edit the user's settings or profiles. Declare hooks and permissions in the plugin,
+  where Claude Code shows them and removes them with the plugin, and tell the user what to change
+  if something must be configured.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

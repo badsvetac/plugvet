@@ -1,0 +1,26 @@
+id: pv-startup-network
+title: Reaches the network every time a session starts or you send a prompt
+severity: medium
+kind: structure
+# Only what runs without any action from you: session start, every prompt, and monitors (which
+# start with the session). The scripts those hooks call are read too.
+targets: [hook-command, monitor-command, run-script]
+where:
+  event: [SessionStart, Setup, UserPromptSubmit, InstructionsLoaded, monitor]
+match:
+  any:
+    - '\b(curl|wget|nc|ncat|socat|telnet|scp|rsync|ftp)\b'
+    - '\b(Invoke-WebRequest|Invoke-RestMethod|iwr|irm|Net\.WebClient|Start-BitsTransfer)\b'
+    - '\b(requests|httpx)\.(get|post|put|request)\s*\('
+    - '\burllib\.request\b|\burlopen\s*\('
+    - '\bfetch\s*\(\s*["''`]https?:'
+    - '\b(http|https)\.(get|request)\s*\('
+    - '\bnew\s+WebSocket\s*\('
+    - '/dev/tcp/'
+why: >
+  It runs without you doing anything, on every session or every prompt, and can send data out or
+  pull new instructions in each time. Many plugins do this for good reasons (an update check, a
+  licence check), so read what it sends and to whom.
+fix: Do network work when the user asks for it, in a skill or command, not on every session start.
+  If a startup check is needed, say so in the README and send nothing about the user's project.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

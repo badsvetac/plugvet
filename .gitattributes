@@ -1,0 +1,2 @@
+# Rules and fixtures are compared byte for byte on every OS: keep them LF everywhere.
+* text=auto eol=lf

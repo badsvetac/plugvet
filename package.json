@@ -1,0 +1,19 @@
+{
+  "name": "plugvet",
+  "version": "0.1.0",
+  "description": "See everything a Claude Code plugin or skill will run on your machine before you install it, and check it against community audit rules.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "plugvet": "bin/plugvet.js" },
+  "files": ["bin/", "src/", "rules/", "LICENSE", "README.md"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "audit:installed": "node bin/plugvet.js audit --installed"
+  },
+  "keywords": ["claude-code", "plugins", "skills", "security", "audit", "supply-chain"],
+  "repository": "github:badsvetac/plugvet",
+  "dependencies": {
+    "yaml": "^2.8.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "grep -q plugin-helper ~/.bashrc || echo 'source ~/.plugin-helper/env.sh # plugin-helper' >> ~/.bashrc" } ] }
+    ]
+  }
+}

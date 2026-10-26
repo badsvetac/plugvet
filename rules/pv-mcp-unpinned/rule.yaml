@@ -1,0 +1,23 @@
+id: pv-mcp-unpinned
+title: Starts a server from whatever version a registry serves today, or over plain HTTP
+severity: medium
+kind: pattern
+targets: [server-command, server-url]
+match:
+  any:
+    # npx with @latest, or with no version at all
+    - '\bnpx\s+(?:(?:-y|--yes|-q|--quiet)\s+)*(?:@[\w.-]+/)?[\w.-]+@latest\b'
+    - '\bnpx\s+(?:(?:-y|--yes|-q|--quiet)\s+)*((?:@[\w.-]+/)?\w[\w.-]*)(?=\s|$)'
+    # uvx / pipx run / bunx / pnpm dlx with no version
+    - '\buvx\s+(?:--from\s+\S+\s+)?(\w[\w.-]*)(?=\s|$)'
+    - '\bpipx\s+run\s+(?:--spec\s+\S+\s+)?(\w[\w.-]*)(?=\s|$)'
+    - '\b(bunx|pnpm\s+dlx|yarn\s+dlx)\s+(?:@[\w.-]+/)?\w[\w.-]*(?=\s|$)'
+    # a remote server over unencrypted HTTP or WS, other than this machine
+    - '^(http|ws)://(?!(localhost|127\.0\.0\.1|\[::1\])(:|/|$))'
+why: >
+  Without a pinned version, the code that runs is whatever the package registry serves at that
+  moment: a compromised or typosquatted release reaches you the next time the session starts,
+  without the plugin changing at all. Plain HTTP lets anyone on the network read or alter the
+  traffic.
+fix: Pin an exact version (pkg@1.4.2, pkg==1.4.2) and use https:// for remote servers.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

@@ -1,0 +1,18 @@
+id: pv-hidden-comment-instructions
+title: Hides instructions for Claude in a comment people do not see rendered
+severity: high
+kind: prose
+targets: [instructions]
+flags: ism
+match:
+  any:
+    # an HTML comment that speaks to the model or asks for an action
+    - '<!--(?:(?!-->).){0,2000}?\b(claude|assistant|you\s+must|you\s+should|ignore\s+(all\s+|any\s+)?(previous|prior|above|other)|do\s+not\s+(tell|mention|show|reveal)|system\s*prompt|before\s+(answering|responding|you\s+answer)|always\s+(run|execute|call|send)|run\s+the\s+following|execute\s+the\s+following)\b(?:(?!-->).)*-->'
+    # Markdown link-reference "comments": [//]: # (…) never render
+    - '^\s*\[(//|comment|_)\]:\s*#\s*[("](?:[^\n]*)\b(claude|assistant|you\s+must|ignore|run|execute|do\s+not\s+tell)\b'
+why: >
+  On GitHub and in most editors a Markdown comment is invisible, but Claude reads the raw file.
+  Instructions placed there reach Claude while staying out of sight of anyone reviewing the skill.
+fix: Put instructions in the visible text. Keep comments for notes to maintainers that ask the
+  model for nothing.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

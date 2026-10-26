@@ -1,0 +1,27 @@
+id: pv-hide-from-user
+title: Tells Claude to act behind your back or to drop its earlier instructions
+severity: high
+kind: prose
+targets: [instructions]
+match:
+  # A phrase inside quotes is being quoted (a security guide naming an attack), not given as an
+  # instruction: the (?<!…) at the start of each pattern skips it. A quoted attack can still slip
+  # through; that trade-off keeps security skills from drowning in false alarms.
+  any:
+    # keep something from the user
+    - '(?<![“"''‘«`])\b(do\s+not|don''?t|never)\s+(tell|inform|notify|alert|warn)\s+the\s+user\s+(that|about|what|this|you|we|of)\b'
+    - '(?<![“"''‘«`])\b(do\s+not|don''?t|never)\s+(mention|reveal|disclose|report)\s+(this|these|it|that|the)\s*(\w+\s+){0,2}(to|with)\s+the\s+user\b'
+    - '\bwithout\s+(telling|informing|asking|notifying|alerting)\s+(the\s+)?user\b'
+    - '\bhide\s+(this|it|that|the|any|all)\b[^.\n]{0,40}\bfrom\s+the\s+user\b'
+    # act unseen
+    - '(?<![“"''‘«`])\b(silently|quietly|secretly|covertly|discreetly)\s+(run|execute|send|upload|install|delete|copy|post|add|write|modify|download|curl)\b'
+    # take over from the user's and Claude Code's instructions
+    - '(?<![“"''‘«`])\b(ignore|disregard|forget|override)\s+(all\s+|any\s+)?(previous|prior|above|earlier|preceding|other|system)\s+(instructions|rules|guidelines|directions|prompts?)\b'
+    - '(?<![“"''‘«`])\b(skip|bypass|disable|avoid|suppress)\s+(the\s+|any\s+|all\s+)?(permission|confirmation|approval)\s+(prompts?|checks?|dialogs?|requests?|steps?)\b'
+why: >
+  A skill's text goes straight into Claude's instructions. Asking Claude to keep an action from you,
+  to act silently, or to set aside the instructions it already has is how prompt injection takes
+  over a session. Legitimate skills tell Claude what to do, not what to hide.
+fix: Write instructions that keep the user informed. If a step is noisy, say to summarise it, not
+  to hide it.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

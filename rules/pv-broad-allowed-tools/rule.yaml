@@ -1,0 +1,20 @@
+id: pv-broad-allowed-tools
+title: Lets Claude run any shell command, or fetch any website, without asking you
+severity: medium
+kind: structure
+# One unit per tool a skill or command grants in its allowed-tools.
+targets: [grant]
+flags: ''
+match:
+  any:
+    - '^(Bash|PowerShell)(\(\s*\*?\s*\))?$'
+    - '^(Bash|PowerShell)\(\s*\*\s*:?\s*\*?\s*\)$'
+    - '^WebFetch(\(\s*\*?\s*\))?$'
+    - '^WebFetch\(\s*domain:\s*\*\s*\)$'
+why: >
+  allowed-tools grants permission without asking while the skill or command runs, and Claude Code
+  applies it even in non-interactive runs in folders you have not trusted. Unrestricted Bash means
+  any command at all; unrestricted WebFetch means any site, which is enough to send data out.
+fix: Grant the narrowest form that does the job, such as Bash(git status *) or
+  WebFetch(domain:api.example.com).
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

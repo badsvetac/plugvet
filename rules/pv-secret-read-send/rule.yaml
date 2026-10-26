@@ -1,0 +1,17 @@
+id: pv-secret-read-send
+title: Reads your keys or credentials and also sends data out
+severity: critical
+kind: pattern
+targets: [hook-command, monitor-command, server-command, run-script, script]
+match:
+  # Both in the same file or command: reading a secret store, and talking to the network.
+  all:
+    - '(\.ssh[/\\''"]|\bid_(rsa|ed25519|ecdsa|dsa)\b|\.aws[/\\''"]|\.aws\b\s*["'']?\s*,\s*["'']credentials|\.gnupg\b|\.kube[/\\''"]|\.docker[/\\]config\.json|\.npmrc\b|\.netrc\b|\.git-credentials\b|\.config[/\\]gh[/\\]hosts|\.claude[/\\]\.credentials|\bsecurity\s+find-(generic|internet)-password\b|\bcmdkey\s+/list\b|\bGet-StoredCredential\b|Login\s+Data|\bkeychain\b[^\n]*\b(dump|export|find)\b)'
+    - '(\b(curl|wget|nc|ncat|socat|scp|rsync|ftp)\b|\b(Invoke-WebRequest|Invoke-RestMethod|iwr|irm)\b|\b(requests|httpx)\.(post|put|get)\s*\(|\burlopen\s*\(|\bfetch\s*\(|\b(http|https)\.request\s*\(|/dev/tcp/|\bsmtplib\b)'
+why: >
+  Private keys, cloud credentials and saved tokens let someone act as you: push code, read private
+  repositories, spend on your cloud account. A plugin that reads them and also talks to the network
+  can send them anywhere.
+fix: A plugin should never read credential files directly. Use the tool's own authenticated CLI
+  (gh, aws) so the secret never passes through the plugin.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

@@ -1,0 +1,23 @@
+id: pv-obfuscated-exec
+title: Decodes hidden code and runs it
+severity: critical
+kind: pattern
+targets: [hook-command, monitor-command, server-command, run-script, script]
+match:
+  any:
+    # shell: base64/xxd decoded straight into a shell or eval
+    - '\b(base64\s+(-d|--decode|-D)|xxd\s+-r(\s+-p)?|openssl\s+(base64|enc)\s+-d)\b[^\n]*\|\s*(sudo\s+)?(ba|z)?sh\b'
+    - '\beval\s+"?\$\(\s*(echo|printf)\s+[^)]*\|\s*(base64|xxd|openssl)\b'
+    # JavaScript: eval / new Function / vm on decoded text
+    - '\b(eval|new\s+Function|vm\.runIn\w+Context|vm\.runInThisContext)\s*\(\s*(atob\s*\(|Buffer\.from\s*\([^)]*[''"](base64|hex)[''"]|String\.fromCharCode|unescape\s*\(|decodeURIComponent\s*\()'
+    # Python: exec/eval on decoded or decompressed bytes
+    - '\b(exec|eval|compile)\s*\(\s*(base64\.\w*b64decode|codecs\.decode|bytes\.fromhex|zlib\.decompress|marshal\.loads|bz2\.decompress|lzma\.decompress)'
+    # PowerShell: encoded commands, and FromBase64String fed to Invoke-Expression
+    - '\b(powershell|pwsh)(\.exe)?\b[^\n]*\s-(e|ec|en|enc|enco|encod|encode|encoded|encodedcommand)\s+[A-Za-z0-9+/=]{16,}'
+    - '\b(iex|Invoke-Expression)\b[^\n]*FromBase64String'
+why: >
+  Code that is encoded before it is run is code a reviewer cannot read. Legitimate plugins have no
+  reason to hide what they execute; this is how malware gets past a quick look and past simple
+  scanners.
+fix: Ship the code as plain, readable source and run that.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

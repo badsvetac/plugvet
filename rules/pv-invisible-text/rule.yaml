@@ -1,0 +1,22 @@
+id: pv-invisible-text
+title: Contains characters a person cannot see but Claude can read
+severity: high
+kind: pattern
+targets: [instructions, script, run-script, hook-command, monitor-command, server-command]
+flags: u
+match:
+  any:
+    # Unicode "tag" characters: invisible copies of ASCII that models read as text ("ASCII smuggling")
+    - '[\u{E0000}-\u{E007F}]'
+    # zero-width space and the invisible operators (zero-width joiner and non-joiner are left out:
+    # emoji sequences and Persian, Hindi and other scripts use them)
+    - '[​⁠-⁤᠎]'
+    # bidirectional overrides and isolates, which make code read differently from how it runs
+    - '[‪-‮⁦-⁩]'
+why: >
+  Text you cannot see in an editor or on GitHub can still be read by Claude as instructions, and
+  bidirectional controls make a line of code look different from what runs ("Trojan Source").
+  A reviewer approves what they see; this is what they did not see.
+fix: Remove the invisible characters. plugvet prints each one as \u{...} in the excerpt, so you
+  can find them.
+author: { name: plugvet, url: https://github.com/badsvetac/plugvet }

